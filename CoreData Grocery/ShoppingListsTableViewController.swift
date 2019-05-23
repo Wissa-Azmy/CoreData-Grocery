@@ -7,17 +7,45 @@
 //
 
 import UIKit
+import CoreData
 
 class ShoppingListsTableViewController: UITableViewController {
+    
+    var managedObjectContext: NSManagedObjectContext!
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        initializeCoreDataStack()
+    }
 
-        // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
-
-        // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-        // self.navigationItem.rightBarButtonItem = self.editButtonItem
+    
+    func initializeCoreDataStack() {
+        guard let modelURL = Bundle.main.url(forResource: "MyGroceryDataModel", withExtension: "momd") else {
+            fatalError("Unable to initialize ManagedObjectModel")
+        }
+        
+        guard let managedObjectModel = NSManagedObjectModel(contentsOf: modelURL) else {
+            fatalError("Unable to initialize a ManagedObjectModel")
+        }
+        
+        let persistentStoreCoordinator = NSPersistentStoreCoordinator(managedObjectModel: managedObjectModel)
+        
+        let fileManager = FileManager()
+        
+        guard let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first else {
+            fatalError("Unable to get documets URL")
+        }
+        
+        let storeURL = documentsURL.appendingPathComponent("MyGrocery.sqlite")
+        
+        print(storeURL)
+        
+        try! persistentStoreCoordinator.addPersistentStore(ofType: NSSQLiteStoreType, configurationName: nil, at: storeURL, options: nil)
+        
+        let type = NSManagedObjectContextConcurrencyType.mainQueueConcurrencyType
+        self.managedObjectContext = NSManagedObjectContext(concurrencyType: type)
+        self.managedObjectContext.persistentStoreCoordinator = persistentStoreCoordinator
     }
 
     // MARK: - Table view data source
