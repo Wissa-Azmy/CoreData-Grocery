@@ -47,12 +47,29 @@ class ShoppingListsTableViewController: UITableViewController {
         self.managedObjectContext = NSManagedObjectContext(concurrencyType: type)
         self.managedObjectContext.persistentStoreCoordinator = persistentStoreCoordinator
     }
+    
+    override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 44
+    }
 
+    override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let headerView = UIView(frame: CGRect(x: 0, y: 0, width: tableView.frame.size.width, height: 44))
+        headerView.backgroundColor = UIColor.lightText
+        
+        let addListTextField = UITextField(frame: headerView.frame)
+        addListTextField.placeholder = "Enter Shopping List"
+        addListTextField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 10, height: 0))
+        addListTextField.leftViewMode = .always
+        
+        headerView.addSubview(addListTextField)
+        
+        return headerView
+    }
     // MARK: - Table view data source
 
     override func numberOfSections(in tableView: UITableView) -> Int {
         // #warning Incomplete implementation, return the number of sections
-        return 0
+        return 1
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
