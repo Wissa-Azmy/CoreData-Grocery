@@ -9,7 +9,12 @@
 import Foundation
 import CoreData
 
+protocol ShoppingListDataProviderDelegate {
+    func dataDidChange(atIndex indexPath: IndexPath)
+}
+
 class ShoppingListDataProvider: NSObject, NSFetchedResultsControllerDelegate {
+    var delegate: ShoppingListDataProviderDelegate!
     var fetchResultsController: NSFetchedResultsController<ShoppingList>!
     var sections: [NSFetchedResultsSectionInfo]? {
         return fetchResultsController.sections
@@ -30,6 +35,6 @@ class ShoppingListDataProvider: NSObject, NSFetchedResultsControllerDelegate {
     }
     
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
-        <#code#>
+        delegate.dataDidChange(atIndex: newIndexPath!)
     }
 }
