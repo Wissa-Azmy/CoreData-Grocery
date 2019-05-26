@@ -42,7 +42,6 @@ class ShoppingListDataSource: NSObject, UITableViewDataSource {
         return 0
     }
     
-    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
         let shoppingList = shoppingListDataProvider.object(at: indexPath)
@@ -50,10 +49,24 @@ class ShoppingListDataSource: NSObject, UITableViewDataSource {
         
         return cell
     }
+    
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        let shoppingList = shoppingListDataProvider.object(at: indexPath)
+        
+        if editingStyle == .delete {
+            shoppingListDataProvider.delete(shoppingList: shoppingList)
+        }
+        
+        tableView.isEditing = false
+    }
 }
 
 extension ShoppingListDataSource: ShoppingListDataProviderDelegate {
-    func dataDidChange(atIndex indexPath: IndexPath) {
-        tableView.insertRows(at: [indexPath], with: .automatic)
+    func dataDidChange(atIndex indexPath: IndexPath, changeType: ChangeType) {
+        if changeType == .insert {
+            tableView.insertRows(at: [indexPath], with: .automatic)
+        } else {
+            tableView.deleteRows(at: [indexPath], with: .automatic)
+        }
     }
 }

@@ -10,11 +10,17 @@ import Foundation
 import CoreData
 
 protocol ShoppingListDataProviderDelegate {
-    func dataDidChange(atIndex indexPath: IndexPath)
+    func dataDidChange(atIndex indexPath: IndexPath, changeType: ChangeType)
+}
+
+enum ChangeType {
+    case delete
+    case insert
 }
 
 class ShoppingListDataProvider: NSObject, NSFetchedResultsControllerDelegate {
     var delegate: ShoppingListDataProviderDelegate!
+    var managedObjectContext: NSManagedObjectContext!
     var fetchResultsController: NSFetchedResultsController<ShoppingList>!
     var sections: [NSFetchedResultsSectionInfo]? {
         return fetchResultsController.sections
@@ -22,7 +28,7 @@ class ShoppingListDataProvider: NSObject, NSFetchedResultsControllerDelegate {
     
     init(managedObjectContext: NSManagedObjectContext) {
         super.init()
-        
+        self.managedObjectContext = managedObjectContext
         let request = NSFetchRequest<ShoppingList>(entityName: "ShoppingList")
         request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
         fetchResultsController = NSFetchedResultsController(fetchRequest: request, managedObjectContext: managedObjectContext, sectionNameKeyPath: nil, cacheName: nil)
@@ -34,7 +40,17 @@ class ShoppingListDataProvider: NSObject, NSFetchedResultsControllerDelegate {
         return fetchResultsController.object(at: indexPath)
     }
     
+    func delete(shoppingList: ShoppingList) {
+        managedObjectContext.delete(shoppingList)
+        try! managedObjectContext.save()
+    }
+    
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
-        delegate.dataDidChange(atIndex: newIndexPath!)
+        if type == .insert {
+            delegate.dataDidChange(atIndex: newIndexPath!, changeType: .insert)
+        } else {
+            delegate.dataDidChange(atIndex: indexPath!, changeType: .delete)
+        }
+        
     }
 }

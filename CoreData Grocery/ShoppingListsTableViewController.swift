@@ -9,7 +9,7 @@
 import UIKit
 import CoreData
 
-class ShoppingListsTableViewController: UITableViewController, UITextFieldDelegate {
+class ShoppingListsTableViewController: UITableViewController {
     
     var managedObjectContext: NSManagedObjectContext!
     var shoppingListDataSource: ShoppingListDataSource!
@@ -26,18 +26,6 @@ class ShoppingListsTableViewController: UITableViewController, UITextFieldDelega
         shoppingListDataProvider = ShoppingListDataProvider(managedObjectContext: managedObjectContext)
         shoppingListDataSource = ShoppingListDataSource(forCell: "Cell", ofTableView: tableView, withDataProvider: shoppingListDataProvider)
     }
-    
-    
-    // MARK: - TextField delegate
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        let shoppingList = NSEntityDescription.insertNewObject(forEntityName: "ShoppingList", into: managedObjectContext) as! ShoppingList
-        shoppingList.title = textField.text
-        try! managedObjectContext.save()
-        textField.text = ""
-        
-        return textField.resignFirstResponder()
-    }
-    
     
     override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         return 44
@@ -57,16 +45,18 @@ class ShoppingListsTableViewController: UITableViewController, UITextFieldDelega
         
         return headerView
     }
- 
-    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        let shoppingList = fetchResultsController.object(at: indexPath)
-        
-        if editingStyle == .delete {
-            managedObjectContext.delete(shoppingList)
-            try! managedObjectContext.save()
-        }
-        
-        tableView.isEditing = false
-    }
 
+}
+
+
+// MARK: - TextField delegate
+extension ShoppingListsTableViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        let shoppingList = NSEntityDescription.insertNewObject(forEntityName: "ShoppingList", into: managedObjectContext) as! ShoppingList
+        shoppingList.title = textField.text
+        try! managedObjectContext.save()
+        textField.text = ""
+        
+        return textField.resignFirstResponder()
+    }
 }
