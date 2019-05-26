@@ -9,14 +9,16 @@
 import UIKit
 import CoreData
 
-class ShoppingListsTableViewController: UITableViewController, UITextFieldDelegate {
+class ShoppingListsTableViewController: UITableViewController, UITextFieldDelegate, NSFetchedResultsControllerDelegate {
     
     var managedObjectContext: NSManagedObjectContext!
+    var fetchResultsController: NSFetchedResultsController<ShoppingList>!
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
         initializeCoreDataStack()
+        populateShoppingLists()
     }
     
     
@@ -28,6 +30,24 @@ class ShoppingListsTableViewController: UITableViewController, UITextFieldDelega
         textField.text = ""
         
         return textField.resignFirstResponder()
+    }
+    
+    private func populateShoppingLists() {
+        let request = NSFetchRequest<ShoppingList>(entityName: "ShoppingList")
+        request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
+        fetchResultsController = NSFetchedResultsController(fetchRequest: request, managedObjectContext: managedObjectContext, sectionNameKeyPath: nil, cacheName: nil)
+        
+        do {
+            try fetchResultsController.performFetch()
+        } catch {
+            print(error.localizedDescription)
+        }
+        
+        fetchResultsController.delegate = self
+    }
+    
+    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
+        tableView.insertRows(at: [newIndexPath!], with: .automatic)
     }
 
     
@@ -77,27 +97,35 @@ class ShoppingListsTableViewController: UITableViewController, UITextFieldDelega
         
         return headerView
     }
+    
     // MARK: - Table view data source
-
     override func numberOfSections(in tableView: UITableView) -> Int {
         // #warning Incomplete implementation, return the number of sections
+        if let sections = fetchResultsController.sections {
+            return sections.count
+        }
+        
         return 1
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
+        if let sections = fetchResultsController.sections {
+            return sections[section].numberOfObjects
+        }
+        
         return 0
     }
 
-    /*
+    
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "reuseIdentifier", for: indexPath)
-
-        // Configure the cell...
-
+        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
+        let shoppingList = fetchResultsController.object(at: indexPath)
+        cell.textLabel?.text = shoppingList.title
+        
         return cell
     }
-    */
+ 
 
     /*
     // Override to support conditional editing of the table view.
