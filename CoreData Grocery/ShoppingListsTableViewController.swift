@@ -11,13 +11,17 @@ import CoreData
 
 class ShoppingListsTableViewController: UITableViewController, UITextFieldDelegate, NSFetchedResultsControllerDelegate {
     
+    var shoppingListDataProvider: ShoppingListDataProvider!
     var managedObjectContext: NSManagedObjectContext!
     var fetchResultsController: NSFetchedResultsController<ShoppingList>!
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        populateShoppingLists()
+        initDataProviderAndDataSource()
+    }
+    
+    private func initDataProviderAndDataSource() {
+        shoppingListDataProvider = ShoppingListDataProvider(managedObjectContext: managedObjectContext)
     }
     
     
@@ -31,29 +35,6 @@ class ShoppingListsTableViewController: UITableViewController, UITextFieldDelega
         return textField.resignFirstResponder()
     }
     
-    private func populateShoppingLists() {
-        let request = NSFetchRequest<ShoppingList>(entityName: "ShoppingList")
-        request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
-        fetchResultsController = NSFetchedResultsController(fetchRequest: request, managedObjectContext: managedObjectContext, sectionNameKeyPath: nil, cacheName: nil)
-        
-        do {
-            try fetchResultsController.performFetch()
-        } catch {
-            print(error.localizedDescription)
-        }
-        
-        fetchResultsController.delegate = self
-    }
-    
-    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
-        
-        if type == .insert {
-            tableView.insertRows(at: [newIndexPath!], with: .automatic)
-        } else {
-            tableView.deleteRows(at: [indexPath!], with: .automatic)
-        }
-        
-    }
     
     override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         return 44
