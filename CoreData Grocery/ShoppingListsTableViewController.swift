@@ -9,7 +9,7 @@
 import UIKit
 import CoreData
 
-class ShoppingListsTableViewController: UITableViewController {
+class ShoppingListsTableViewController: UITableViewController, UITextFieldDelegate {
     
     var managedObjectContext: NSManagedObjectContext!
 
@@ -17,6 +17,17 @@ class ShoppingListsTableViewController: UITableViewController {
         super.viewDidLoad()
         
         initializeCoreDataStack()
+    }
+    
+    
+    // MARK: - TextField delegate
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        let shoppingList = NSEntityDescription.insertNewObject(forEntityName: "ShoppingList", into: managedObjectContext) as! ShoppingList
+        shoppingList.title = textField.text
+        try! managedObjectContext.save()
+        textField.text = ""
+        
+        return textField.resignFirstResponder()
     }
 
     
@@ -60,6 +71,7 @@ class ShoppingListsTableViewController: UITableViewController {
         addListTextField.placeholder = "Enter Shopping List"
         addListTextField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 10, height: 0))
         addListTextField.leftViewMode = .always
+        addListTextField.delegate = self
         
         headerView.addSubview(addListTextField)
         
