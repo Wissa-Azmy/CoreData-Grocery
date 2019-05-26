@@ -47,7 +47,13 @@ class ShoppingListsTableViewController: UITableViewController, UITextFieldDelega
     }
     
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
-        tableView.insertRows(at: [newIndexPath!], with: .automatic)
+        
+        if type == .insert {
+            tableView.insertRows(at: [newIndexPath!], with: .automatic)
+        } else {
+            tableView.deleteRows(at: [indexPath!], with: .automatic)
+        }
+        
     }
 
     
@@ -126,6 +132,16 @@ class ShoppingListsTableViewController: UITableViewController, UITextFieldDelega
         return cell
     }
  
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        let shoppingList = fetchResultsController.object(at: indexPath)
+        
+        if editingStyle == .delete {
+            managedObjectContext.delete(shoppingList)
+            try! managedObjectContext.save()
+        }
+        
+        tableView.isEditing = false
+    }
 
     /*
     // Override to support conditional editing of the table view.
