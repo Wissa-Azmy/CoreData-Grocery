@@ -14,7 +14,6 @@ class ShoppingListsTableViewController: UITableViewController {
     var managedObjectContext: NSManagedObjectContext!
     var shoppingListDataSource: ShoppingListDataSource!
     var shoppingListDataProvider: ShoppingListDataProvider!
-    var fetchResultsController: NSFetchedResultsController<ShoppingList>!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -52,8 +51,8 @@ class ShoppingListsTableViewController: UITableViewController {
 // MARK: - TextField delegate
 extension ShoppingListsTableViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        let shoppingList = NSEntityDescription.insertNewObject(forEntityName: "ShoppingList", into: managedObjectContext) as! ShoppingList
-        shoppingList.title = textField.text
+        let newShoppingList = NSEntityDescription.insertNewObject(forEntityName: "ShoppingList", into: managedObjectContext) as! ShoppingList
+        newShoppingList.title = textField.text
         try! managedObjectContext.save()
         textField.text = ""
         

@@ -14,11 +14,10 @@ protocol ShoppingListDataProviderDelegate {
 }
 
 enum ChangeType {
-    case delete
-    case insert
+    case delete, insert
 }
 
-class ShoppingListDataProvider: NSObject, NSFetchedResultsControllerDelegate {
+class ShoppingListDataProvider: NSObject {
     var delegate: ShoppingListDataProviderDelegate!
     var managedObjectContext: NSManagedObjectContext!
     var fetchResultsController: NSFetchedResultsController<ShoppingList>!
@@ -44,7 +43,11 @@ class ShoppingListDataProvider: NSObject, NSFetchedResultsControllerDelegate {
         managedObjectContext.delete(shoppingList)
         try! managedObjectContext.save()
     }
-    
+
+}
+
+
+extension ShoppingListDataProvider: NSFetchedResultsControllerDelegate {
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
         if type == .insert {
             delegate.dataDidChange(atIndex: newIndexPath!, changeType: .insert)
